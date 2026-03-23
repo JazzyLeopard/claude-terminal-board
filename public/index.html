@@ -206,7 +206,7 @@
       word-break: break-word;
     }
     .section-content.response {
-      max-height: 100px;
+      max-height: 140px;
       overflow-y: auto;
       scrollbar-width: thin;
       scrollbar-color: var(--border-light) transparent;
@@ -218,6 +218,72 @@
       background: var(--border-light);
       border-radius: 4px;
     }
+
+    /* ─── Rendered Markdown ───────────────────────── */
+    .md-content h1, .md-content h2, .md-content h3, .md-content h4 {
+      color: var(--text);
+      margin: 8px 0 4px 0;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .md-content h1 { font-size: 14px; }
+    .md-content h2 { font-size: 13px; }
+    .md-content h3 { font-size: 12px; }
+    .md-content p { margin: 4px 0; }
+    .md-content ul, .md-content ol {
+      padding-left: 18px;
+      margin: 4px 0;
+    }
+    .md-content li { margin: 2px 0; }
+    .md-content code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      background: rgba(0,0,0,0.3);
+      padding: 1px 5px;
+      border-radius: 3px;
+    }
+    .md-content pre {
+      background: rgba(0,0,0,0.3);
+      padding: 8px;
+      border-radius: 4px;
+      overflow-x: auto;
+      margin: 6px 0;
+    }
+    .md-content pre code {
+      background: none;
+      padding: 0;
+    }
+    .md-content table {
+      border-collapse: collapse;
+      width: 100%;
+      margin: 6px 0;
+      font-size: 12px;
+    }
+    .md-content th, .md-content td {
+      border: 1px solid var(--border);
+      padding: 4px 8px;
+      text-align: left;
+    }
+    .md-content th {
+      background: rgba(0,0,0,0.2);
+      font-weight: 600;
+      color: var(--text);
+    }
+    .md-content strong { color: var(--text); }
+    .md-content a { color: var(--accent); text-decoration: none; }
+    .md-content blockquote {
+      border-left: 2px solid var(--border-light);
+      padding-left: 10px;
+      margin: 6px 0;
+      color: var(--text-muted);
+    }
+    .md-content hr {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 8px 0;
+    }
+    .md-content > *:first-child { margin-top: 0; }
+    .md-content > *:last-child { margin-bottom: 0; }
 
     .timestamp {
       font-size: 11px;
@@ -258,15 +324,234 @@
       border-radius: 4px;
       border: 1px solid var(--border);
     }
+
+    /* ─── Kill Button ─────────────────────────────── */
+    .kill-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 11px;
+      font-weight: 500;
+      padding: 3px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: 'Inter', sans-serif;
+      letter-spacing: 0.02em;
+    }
+    .kill-btn:hover {
+      border-color: #ef4444;
+      color: #ef4444;
+      background: rgba(239, 68, 68, 0.08);
+    }
+    .kill-btn:active {
+      transform: scale(0.96);
+    }
+    .kill-btn.killing {
+      color: var(--text-muted);
+      border-color: var(--border);
+      cursor: default;
+      opacity: 0.6;
+    }
+    .card-header-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* ─── Tab Navigation ──────────────────────────── */
+    .tab-nav {
+      display: flex;
+      gap: 4px;
+      background: rgba(0,0,0,0.2);
+      padding: 3px;
+      border-radius: 8px;
+    }
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 6px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .tab-btn:hover { color: var(--text-dim); }
+    .tab-btn.active {
+      background: var(--surface);
+      color: var(--text);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    }
+
+    /* ─── Worklog ─────────────────────────────────── */
+    .worklog {
+      padding: 24px 32px;
+      max-width: 960px;
+    }
+    .wl-day {
+      margin-bottom: 32px;
+    }
+    .wl-day-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    .wl-day-title {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+    .wl-day-stats {
+      display: flex;
+      gap: 16px;
+      font-size: 13px;
+      color: var(--text-dim);
+    }
+    .wl-day-stats span {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .wl-project {
+      margin-bottom: 20px;
+      margin-left: 4px;
+    }
+    .wl-project-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .wl-project-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--accent);
+    }
+    .wl-project-meta {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .wl-session {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin-bottom: 8px;
+      margin-left: 16px;
+    }
+    .wl-session-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .wl-session-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .wl-session-time {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .wl-session-meta {
+      display: flex;
+      gap: 12px;
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+    .wl-tasks {
+      margin-top: 8px;
+    }
+    .wl-task {
+      display: flex;
+      gap: 10px;
+      padding: 4px 0;
+      font-size: 13px;
+      color: var(--text-dim);
+      line-height: 1.4;
+    }
+    .wl-task-time {
+      color: var(--text-muted);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      flex-shrink: 0;
+      padding-top: 2px;
+    }
+    .wl-tools {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 6px;
+    }
+    .wl-tool-tag {
+      font-size: 11px;
+      padding: 1px 7px;
+      border-radius: 4px;
+      background: rgba(124, 138, 255, 0.1);
+      color: var(--accent);
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .wl-files-tag {
+      font-size: 11px;
+      padding: 1px 7px;
+      border-radius: 4px;
+      background: rgba(52, 211, 153, 0.1);
+      color: var(--green);
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .wl-totals {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px 20px;
+      margin-top: 16px;
+      display: flex;
+      gap: 24px;
+      font-size: 14px;
+    }
+    .wl-totals .label {
+      color: var(--text-muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .wl-totals .value {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text);
+      margin-top: 2px;
+    }
   </style>
 </head>
 <body>
   <div id="root"></div>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.1/marked.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
   <script type="text/babel">
-    const { useState, useEffect, useRef } = React;
+    const { useState, useEffect, useRef, useMemo } = React;
+
+    // Configure marked for safe, compact output
+    marked.setOptions({ breaks: true, gfm: true });
+
+    function Markdown({ text }) {
+      const html = useMemo(() => {
+        if (!text) return "";
+        try { return marked.parse(text); }
+        catch { return text; }
+      }, [text]);
+      return <div className="md-content" dangerouslySetInnerHTML={{ __html: html }} />;
+    }
 
     function timeAgo(ts) {
       if (!ts) return "";
@@ -297,9 +582,22 @@
       idle:            { label: "Idle",           dot: "gray",   dotPulse: false },
     };
 
-    function Card({ session }) {
-      const { label, sessionName, status, model, gitBranch, lastAction, lastResponse, lastUserMessage, turnCount, costUSD, lastEventAt, permissionMode } = session;
+    function Card({ session, onKill }) {
+      const { label, sessionName, pid, status, model, gitBranch, lastAction, lastResponse, lastUserMessage, turnCount, costUSD, lastEventAt, permissionMode } = session;
       const cfg = STATUS_CONFIG[status] || STATUS_CONFIG["needs-input"];
+      const [killing, setKilling] = useState(false);
+
+      function handleKill(e) {
+        e.stopPropagation();
+        if (killing || !pid) return;
+        setKilling(true);
+        fetch(`/api/kill/${pid}`, { method: "POST" })
+          .then((r) => r.json())
+          .then(() => {
+            // Card will disappear on next poll
+          })
+          .catch(() => setKilling(false));
+      }
 
       return (
         <div className={`card ${status}`}>
@@ -311,9 +609,20 @@
               <span className={`stat-dot ${cfg.dot} ${cfg.dotPulse ? "pulse" : ""}`} />
               {label || "Unknown project"}
             </div>
-            <span className={`status-badge ${status}`}>
-              {cfg.label}
-            </span>
+            <div className="card-header-right">
+              {pid && (
+                <button
+                  className={`kill-btn ${killing ? "killing" : ""}`}
+                  onClick={handleKill}
+                  title={`Kill PID ${pid}`}
+                >
+                  {killing ? "Stopping..." : "Kill"}
+                </button>
+              )}
+              <span className={`status-badge ${status}`}>
+                {cfg.label}
+              </span>
+            </div>
           </div>
 
           <div className="card-meta">
@@ -353,7 +662,7 @@
                 <span className="timestamp">{timeAgo(lastResponse.timestamp)}</span>
               </div>
               <div className="section-content response">
-                {lastResponse.text}
+                <Markdown text={lastResponse.text} />
               </div>
             </div>
           )}
@@ -361,7 +670,7 @@
           {!lastAction && !lastResponse && (
             <div className="section">
               <div className="section-content" style={{ color: "var(--text-muted)", fontStyle: "italic" }}>
-                Session starting...
+                Waiting for input...
               </div>
             </div>
           )}
@@ -369,7 +678,135 @@
       );
     }
 
+    // ─── Dutch date formatting ──────────────────────
+    const NL_DAYS = ["zondag","maandag","dinsdag","woensdag","donderdag","vrijdag","zaterdag"];
+    const NL_MONTHS = ["januari","februari","maart","april","mei","juni","juli","augustus","september","oktober","november","december"];
+
+    function formatDutchDate(dateStr) {
+      const d = new Date(dateStr + "T12:00:00");
+      const today = new Date();
+      const todayStr = today.toISOString().split("T")[0];
+      const yesterday = new Date(today);
+      yesterday.setDate(yesterday.getDate() - 1);
+      const yesterdayStr = yesterday.toISOString().split("T")[0];
+
+      if (dateStr === todayStr) return "Vandaag";
+      if (dateStr === yesterdayStr) return "Gisteren";
+      return `${NL_DAYS[d.getDay()]} ${d.getDate()} ${NL_MONTHS[d.getMonth()]}`;
+    }
+
+    function formatDuration(ms) {
+      if (!ms || ms < 60000) return "< 1 min";
+      const mins = Math.floor(ms / 60000);
+      if (mins < 60) return `${mins} min`;
+      const hrs = Math.floor(mins / 60);
+      const remMins = mins % 60;
+      return remMins > 0 ? `${hrs}u ${remMins}m` : `${hrs}u`;
+    }
+
+    function formatTimeRange(start, end) {
+      const fmt = (ts) => new Date(ts).toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" });
+      if (!start) return "";
+      if (!end || start === end) return fmt(start);
+      return `${fmt(start)} – ${fmt(end)}`;
+    }
+
+    // ─── Worklog Component ──────────────────────────
+    function Worklog() {
+      const [data, setData] = useState([]);
+      const [loading, setLoading] = useState(true);
+
+      useEffect(() => {
+        fetch("/api/worklog?days=14")
+          .then((r) => r.json())
+          .then((d) => { setData(d); setLoading(false); })
+          .catch(() => setLoading(false));
+      }, []);
+
+      if (loading) return <div className="empty"><p>Werklog laden...</p></div>;
+      if (data.length === 0) return (
+        <div className="empty">
+          <div className="empty-icon">◻</div>
+          <h2>Geen sessiegegevens gevonden</h2>
+          <p>Start Claude Code sessies om je werklog automatisch bij te houden.</p>
+        </div>
+      );
+
+      return (
+        <div className="worklog">
+          {data.map((day) => (
+            <div key={day.date} className="wl-day">
+              <div className="wl-day-header">
+                <div className="wl-day-title">{formatDutchDate(day.date)}</div>
+                <div className="wl-day-stats">
+                  <span>{day.sessionCount} sessie{day.sessionCount !== 1 ? "s" : ""}</span>
+                  <span>{formatDuration(day.totalDuration)}</span>
+                  <span>{day.totalTurns} beurten</span>
+                  {day.totalCost > 0 && <span>${day.totalCost.toFixed(3)}</span>}
+                </div>
+              </div>
+
+              {day.projects.map((proj) => (
+                <div key={proj.name} className="wl-project">
+                  <div className="wl-project-header">
+                    <div className="wl-project-name">{proj.name}</div>
+                    <div className="wl-project-meta">
+                      {formatDuration(proj.totalDuration)} · {proj.totalTurns} beurten
+                      {proj.totalCost > 0 && ` · $${proj.totalCost.toFixed(3)}`}
+                    </div>
+                  </div>
+
+                  {proj.sessions.map((s) => (
+                    <div key={s.sessionId} className="wl-session">
+                      <div className="wl-session-header">
+                        <div className="wl-session-name">
+                          {s.sessionName || "Naamloze sessie"}
+                        </div>
+                        <div className="wl-session-time">
+                          {formatTimeRange(s.startedAt, s.lastEventAt)}
+                        </div>
+                      </div>
+                      <div className="wl-session-meta">
+                        <span>{shortModel(s.model)}</span>
+                        <span>{formatDuration(s.durationMs)}</span>
+                        <span>{s.turnCount} beurten</span>
+                        {s.costUSD > 0 && <span>${s.costUSD.toFixed(3)}</span>}
+                      </div>
+
+                      {s.tasks.length > 0 && (
+                        <div className="wl-tasks">
+                          {s.tasks.map((t, i) => (
+                            <div key={i} className="wl-task">
+                              <span className="wl-task-time">{t.time}</span>
+                              <span>{t.text}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {(s.toolsUsed.length > 0 || s.filesChanged.length > 0) && (
+                        <div className="wl-tools">
+                          {s.toolsUsed.slice(0, 8).map((t) => (
+                            <span key={t} className="wl-tool-tag">{t}</span>
+                          ))}
+                          {s.filesChanged.slice(0, 6).map((f) => (
+                            <span key={f} className="wl-files-tag">{f}</span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+      );
+    }
+
+    // ─── App with Tabs ──────────────────────────────
     function App() {
+      const [tab, setTab] = useState("board");
       const [sessions, setSessions] = useState([]);
 
       useEffect(() => {
@@ -394,39 +831,53 @@
           <div className="header">
             <div className="header-left">
               <h1>Claude Terminal Board</h1>
+              <div className="tab-nav">
+                <button className={`tab-btn ${tab === "board" ? "active" : ""}`} onClick={() => setTab("board")}>
+                  Dashboard
+                </button>
+                <button className={`tab-btn ${tab === "worklog" ? "active" : ""}`} onClick={() => setTab("worklog")}>
+                  Werklog
+                </button>
+              </div>
             </div>
-            <div className="header-stats">
-              {counts.active > 0 && (
-                <span><span className="stat-dot green pulse" /> {counts.active} working</span>
-              )}
-              {counts["needs-input"] > 0 && (
-                <span><span className="stat-dot orange" /> {counts["needs-input"]} need action</span>
-              )}
-              {counts["ready-to-read"] > 0 && (
-                <span><span className="stat-dot blue" /> {counts["ready-to-read"]} ready to read</span>
-              )}
-              {counts["your-turn"] > 0 && (
-                <span><span className="stat-dot purple" /> {counts["your-turn"]} your turn</span>
-              )}
-              {sessions.length === 0 && <span>No sessions</span>}
-            </div>
+            {tab === "board" && (
+              <div className="header-stats">
+                {counts.active > 0 && (
+                  <span><span className="stat-dot green pulse" /> {counts.active} working</span>
+                )}
+                {counts["needs-input"] > 0 && (
+                  <span><span className="stat-dot orange" /> {counts["needs-input"]} need action</span>
+                )}
+                {counts["ready-to-read"] > 0 && (
+                  <span><span className="stat-dot blue" /> {counts["ready-to-read"]} ready to read</span>
+                )}
+                {counts["your-turn"] > 0 && (
+                  <span><span className="stat-dot purple" /> {counts["your-turn"]} your turn</span>
+                )}
+                {sessions.length === 0 && <span>No sessions</span>}
+              </div>
+            )}
           </div>
 
-          {sessions.length === 0 ? (
-            <div className="empty">
-              <div className="empty-icon">◻</div>
-              <h2>No Claude Code sessions detected</h2>
-              <p>
-                Open a terminal and run <code>claude</code> in any project.
-                Sessions will appear here automatically.
-              </p>
-            </div>
+          {tab === "board" ? (
+            sessions.length === 0 ? (
+              <div className="empty">
+                <div className="empty-icon">◻</div>
+                <h2>No Claude Code sessions detected</h2>
+                <p>
+                  Open a terminal and run <code>claude</code> in any project.
+                  Sessions will appear here automatically.
+                </p>
+              </div>
+            ) : (
+              <div className="board">
+                {sessions.map((s) => (
+                  <Card key={s.sessionId} session={s} onKill={() => {}} />
+                ))}
+              </div>
+            )
           ) : (
-            <div className="board">
-              {sessions.map((s) => (
-                <Card key={s.sessionId} session={s} />
-              ))}
-            </div>
+            <Worklog />
           )}
         </>
       );
