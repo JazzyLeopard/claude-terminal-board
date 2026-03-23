@@ -197,13 +197,15 @@ function processEvent(event) {
 //   "your-turn"     → You sent a message but Claude hasn't responded yet (stuck?)
 //   "idle"          → No activity for a while
 
-function deriveStatus(session) {
-  if (!session.lastEventAt) return "idle";
+function deriveStatus(session, isAlive) {
+  // CLI is no longer running → session is done, hide it
+  if (!isAlive) return "idle";
+
+  // No events yet but terminal is open → waiting for first prompt
+  if (!session.lastEventAt) return "needs-input";
+
   const now = Date.now();
   const elapsed = now - new Date(session.lastEventAt).getTime();
-
-  // After 2 hours of no activity, session is done
-  if (elapsed > 7_200_000) return "idle";
 
   // Recent activity from progress events, sub-agents, or tool results → actively working
   const activityElapsed = session.lastActivityAt
@@ -224,23 +226,42 @@ function deriveStatus(session) {
     if (session.lastAssistantHadText) {
       return elapsed > 300_000 ? "ready-to-read" : "needs-input";
     }
-    // Claude only used tools, no text → probably still waiting for you
+    // Claude only used tools, no text
     return elapsed > 300_000 ? "ready-to-read" : "needs-input";
   }
 
   if (session.lastSpeaker === "user") {
-    // You said something but Claude hasn't responded → stuck or waiting
-    return elapsed > 600_000 ? "idle" : "your-turn";
+    // You said something but Claude hasn't responded
+    return "your-turn";
   }
 
   // lastSpeaker is null — session exists but we couldn't determine who spoke last
-  // This happens with agent-heavy sessions. Use lastActivityType as a hint.
   if (session.lastActivityType === "agent-working" || session.lastActivityType === "progress") {
     return elapsed > 300_000 ? "ready-to-read" : "needs-input";
   }
 
-  // Truly unknown — but the session has events, so show it as needing attention
-  return elapsed > 300_000 ? "ready-to-read" : "needs-input";
+  // Terminal is open — always show it
+  return "needs-input";
+}
+
+// ─── Active Session Detection ────────────────────────────────────────────────
+// Claude Code writes a PID file to ~/.claude/sessions/<pid>.json for each
+// running instance. When the CLI exits, the file is removed. We read these
+// to know which sessions are still alive.
+
+function getAliveSessionIds() {
+  const sessionsDir = path.join(os.homedir(), ".claude", "sessions");
+  const alive = new Map(); // sessionId → { cwd, pid }
+  try {
+    const files = fs.readdirSync(sessionsDir).filter((f) => f.endsWith(".json"));
+    for (const file of files) {
+      try {
+        const data = JSON.parse(fs.readFileSync(path.join(sessionsDir, file), "utf8"));
+        if (data.sessionId) alive.set(data.sessionId, { cwd: data.cwd, pid: data.pid });
+      } catch {}
+    }
+  } catch {}
+  return alive;
 }
 
 // ─── File Watching ───────────────────────────────────────────────────────────
@@ -281,11 +302,24 @@ app.use(express.static(path.join(__dirname, "public")));
 
 app.get("/api/sessions", (req, res) => {
   const results = [];
-  const todayStart = new Date();
-  todayStart.setHours(0, 0, 0, 0);
+  const aliveIds = getAliveSessionIds();
+
+  // Ensure all alive sessions exist in the map (even if JSONL wasn't found yet)
+  for (const [sid, meta] of aliveIds.entries()) {
+    if (!sessions.has(sid)) {
+      const session = getOrCreate(sid);
+      if (meta.cwd) {
+        session.cwd = meta.cwd;
+        const parts = meta.cwd.split("/").filter(Boolean);
+        session.label = parts.slice(-2).join("/");
+      }
+    }
+  }
 
   for (const session of sessions.values()) {
-    const status = deriveStatus(session);
+    const isAlive = aliveIds.has(session.sessionId);
+    const status = deriveStatus(session, isAlive);
+
     // Hide idle sessions entirely — only show sessions that need attention
     if (status === "idle") continue;
 
@@ -318,6 +352,53 @@ app.get("/api/sessions", (req, res) => {
   });
 
   res.json(results);
+});
+
+app.get("/api/debug", (req, res) => {
+  const aliveIds = getAliveSessionIds();
+  const sessionsDir = path.join(os.homedir(), ".claude", "sessions");
+
+  // Read raw PID files
+  let pidFiles = [];
+  try {
+    pidFiles = fs.readdirSync(sessionsDir)
+      .filter((f) => f.endsWith(".json"))
+      .map((f) => {
+        try {
+          const data = JSON.parse(fs.readFileSync(path.join(sessionsDir, f), "utf8"));
+          return { file: f, pid: data.pid, sessionId: data.sessionId, cwd: data.cwd };
+        } catch (e) {
+          return { file: f, error: e.message };
+        }
+      });
+  } catch (e) {
+    pidFiles = [{ error: e.message, dir: sessionsDir }];
+  }
+
+  // All sessions from JSONL parsing
+  const allSessions = [];
+  for (const session of sessions.values()) {
+    const isAlive = aliveIds.has(session.sessionId);
+    allSessions.push({
+      sessionId: session.sessionId,
+      label: session.label,
+      sessionName: session.sessionName,
+      isAlive,
+      status: deriveStatus(session, isAlive),
+      lastSpeaker: session.lastSpeaker,
+      lastEventAt: session.lastEventAt,
+    });
+  }
+
+  res.json({
+    homeDir: os.homedir(),
+    sessionsDir,
+    pidFileCount: pidFiles.length,
+    pidFiles,
+    aliveSessionIds: [...aliveIds.keys()],
+    totalSessionsInMap: sessions.size,
+    allSessions,
+  });
 });
 
 // ─── Start ───────────────────────────────────────────────────────────────────
