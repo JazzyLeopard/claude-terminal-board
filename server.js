@@ -16,6 +16,7 @@ function getOrCreate(sessionId) {
       sessionId,
       cwd: "",
       label: "",
+      sessionName: "", // custom title set via /name command
       model: "",
       gitBranch: "",
       lastAction: null,   // { type, summary, timestamp }
@@ -60,7 +61,14 @@ function getPricing(model) {
 // ─── Event Processing ────────────────────────────────────────────────────────
 
 function processEvent(event) {
-  if (!event || !event.sessionId || !event.timestamp) return;
+  if (!event || !event.sessionId) return;
+  // Handle custom-title events (no timestamp required)
+  if (event.type === "custom-title" && event.customTitle) {
+    const session = getOrCreate(event.sessionId);
+    session.sessionName = event.customTitle;
+    return;
+  }
+  if (!event.timestamp) return;
   if (["file-history-snapshot", "queue-operation", "last-prompt"].includes(event.type)) return;
 
   const session = getOrCreate(event.sessionId);
@@ -284,6 +292,7 @@ app.get("/api/sessions", (req, res) => {
     results.push({
       sessionId: session.sessionId,
       label: session.label,
+      sessionName: session.sessionName,
       cwd: session.cwd,
       model: session.model,
       gitBranch: session.gitBranch,

@@ -111,6 +111,16 @@
     .card.your-turn     { border-left: 3px solid var(--purple); }
     .card.idle          { border-left: 3px solid var(--gray); opacity: 0.5; }
 
+    .session-name {
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--text);
+      margin-bottom: 10px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
     .card-header {
       display: flex;
       align-items: flex-start;
@@ -288,11 +298,14 @@
     };
 
     function Card({ session }) {
-      const { label, status, model, gitBranch, lastAction, lastResponse, lastUserMessage, turnCount, costUSD, lastEventAt, permissionMode } = session;
+      const { label, sessionName, status, model, gitBranch, lastAction, lastResponse, lastUserMessage, turnCount, costUSD, lastEventAt, permissionMode } = session;
       const cfg = STATUS_CONFIG[status] || STATUS_CONFIG["needs-input"];
 
       return (
         <div className={`card ${status}`}>
+          {sessionName && (
+            <div className="session-name">{sessionName}</div>
+          )}
           <div className="card-header">
             <div className="card-title">
               <span className={`stat-dot ${cfg.dot} ${cfg.dotPulse ? "pulse" : ""}`} />
