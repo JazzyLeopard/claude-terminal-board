@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Claude Terminal Board</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0c0f14;
+      --surface: #151921;
+      --surface-hover: #1a1f2b;
+      --border: #232a38;
+      --border-light: #2d364a;
+      --text: #e2e8f0;
+      --text-dim: #8892a4;
+      --text-muted: #5a6478;
+      --accent: #7c8aff;
+      --green: #34d399;
+      --green-bg: rgba(52, 211, 153, 0.08);
+      --orange: #fb923c;
+      --orange-bg: rgba(251, 146, 60, 0.08);
+      --blue: #60a5fa;
+      --blue-bg: rgba(96, 165, 250, 0.08);
+      --purple: #a78bfa;
+      --purple-bg: rgba(167, 139, 250, 0.08);
+      --gray: #6b7280;
+      --gray-bg: rgba(107, 114, 128, 0.08);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      min-height: 100vh;
+    }
+
+    /* ─── Header ─────────────────────────────────── */
+    .header {
+      padding: 24px 32px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .header h1 {
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+    .header-stats {
+      display: flex;
+      gap: 20px;
+      font-size: 13px;
+      color: var(--text-dim);
+    }
+    .header-stats span {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .stat-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+    .stat-dot.green { background: var(--green); }
+    .stat-dot.orange { background: var(--orange); }
+    .stat-dot.blue { background: var(--blue); }
+    .stat-dot.purple { background: var(--purple); }
+    .stat-dot.gray { background: var(--gray); }
+    .pulse {
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    /* ─── Board Grid ─────────────────────────────── */
+    .board {
+      padding: 24px 32px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+      gap: 16px;
+    }
+
+    /* ─── Card ───────────────────────────────────── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .card:hover {
+      border-color: var(--border-light);
+      background: var(--surface-hover);
+    }
+    .card.active        { border-left: 3px solid var(--green); }
+    .card.needs-input   { border-left: 3px solid var(--orange); }
+    .card.ready-to-read { border-left: 3px solid var(--blue); }
+    .card.your-turn     { border-left: 3px solid var(--purple); }
+    .card.idle          { border-left: 3px solid var(--gray); opacity: 0.5; }
+
+    .card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .card-title {
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .status-badge {
+      font-size: 11px;
+      font-weight: 500;
+      padding: 2px 8px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .status-badge.active {
+      color: var(--green);
+      background: var(--green-bg);
+    }
+    .status-badge.needs-input {
+      color: var(--orange);
+      background: var(--orange-bg);
+    }
+    .status-badge.ready-to-read {
+      color: var(--blue);
+      background: var(--blue-bg);
+    }
+    .status-badge.your-turn {
+      color: var(--purple);
+      background: var(--purple-bg);
+    }
+    .status-badge.idle {
+      color: var(--gray);
+      background: var(--gray-bg);
+    }
+
+    .card-meta {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .card-meta span {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* ─── Sections inside card ───────────────────── */
+    .section {
+      margin-bottom: 14px;
+    }
+    .section:last-child { margin-bottom: 0; }
+    .section-label {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 6px;
+    }
+    .section-content {
+      font-size: 13px;
+      line-height: 1.5;
+      color: var(--text-dim);
+    }
+    .section-content.mono {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      background: rgba(0,0,0,0.25);
+      padding: 8px 10px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      word-break: break-word;
+    }
+    .section-content.response {
+      max-height: 100px;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border-light) transparent;
+    }
+    .section-content.response::-webkit-scrollbar {
+      width: 4px;
+    }
+    .section-content.response::-webkit-scrollbar-thumb {
+      background: var(--border-light);
+      border-radius: 4px;
+    }
+
+    .timestamp {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-left: 8px;
+    }
+
+    /* ─── Empty State ────────────────────────────── */
+    .empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 60vh;
+      color: var(--text-muted);
+      text-align: center;
+      gap: 12px;
+    }
+    .empty-icon {
+      font-size: 48px;
+      opacity: 0.3;
+    }
+    .empty h2 {
+      font-size: 18px;
+      font-weight: 500;
+      color: var(--text-dim);
+    }
+    .empty p {
+      font-size: 14px;
+      max-width: 400px;
+      line-height: 1.6;
+    }
+    .empty code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      background: var(--surface);
+      padding: 2px 8px;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
+
+    function timeAgo(ts) {
+      if (!ts) return "";
+      const diff = Date.now() - new Date(ts).getTime();
+      const secs = Math.floor(diff / 1000);
+      if (secs < 5) return "just now";
+      if (secs < 60) return `${secs}s ago`;
+      const mins = Math.floor(secs / 60);
+      if (mins < 60) return `${mins}m ago`;
+      const hrs = Math.floor(mins / 60);
+      if (hrs < 24) return `${hrs}h ago`;
+      return `${Math.floor(hrs / 24)}d ago`;
+    }
+
+    function shortModel(m) {
+      if (!m) return "—";
+      if (m.includes("opus")) return "Opus";
+      if (m.includes("sonnet")) return "Sonnet";
+      if (m.includes("haiku")) return "Haiku";
+      return m.split("-").slice(0, 2).join(" ");
+    }
+
+    const STATUS_CONFIG = {
+      active:          { label: "Working",       dot: "green",  dotPulse: true },
+      "needs-input":   { label: "Take Action",   dot: "orange", dotPulse: false },
+      "ready-to-read": { label: "Ready to Read", dot: "blue",   dotPulse: false },
+      "your-turn":     { label: "Your Turn",     dot: "purple", dotPulse: false },
+      idle:            { label: "Idle",           dot: "gray",   dotPulse: false },
+    };
+
+    function Card({ session }) {
+      const { label, status, model, gitBranch, lastAction, lastResponse, lastUserMessage, turnCount, costUSD, lastEventAt, permissionMode } = session;
+      const cfg = STATUS_CONFIG[status] || STATUS_CONFIG["needs-input"];
+
+      return (
+        <div className={`card ${status}`}>
+          <div className="card-header">
+            <div className="card-title">
+              <span className={`stat-dot ${cfg.dot} ${cfg.dotPulse ? "pulse" : ""}`} />
+              {label || "Unknown project"}
+            </div>
+            <span className={`status-badge ${status}`}>
+              {cfg.label}
+            </span>
+          </div>
+
+          <div className="card-meta">
+            <span>⚙ {shortModel(model)}</span>
+            {gitBranch && <span>⑂ {gitBranch}</span>}
+            <span>{turnCount} turns</span>
+            {costUSD > 0 && <span>${costUSD.toFixed(3)}</span>}
+            {permissionMode && <span>{permissionMode}</span>}
+            <span>{timeAgo(lastEventAt)}</span>
+          </div>
+
+          {lastUserMessage && (
+            <div className="section">
+              <div className="section-label">User asked</div>
+              <div className="section-content mono">
+                {lastUserMessage.text}
+              </div>
+            </div>
+          )}
+
+          {lastAction && (
+            <div className="section">
+              <div className="section-label">
+                Last action
+                <span className="timestamp">{timeAgo(lastAction.timestamp)}</span>
+              </div>
+              <div className="section-content mono">
+                {lastAction.summary}
+              </div>
+            </div>
+          )}
+
+          {lastResponse && (
+            <div className="section">
+              <div className="section-label">
+                Last response
+                <span className="timestamp">{timeAgo(lastResponse.timestamp)}</span>
+              </div>
+              <div className="section-content response">
+                {lastResponse.text}
+              </div>
+            </div>
+          )}
+
+          {!lastAction && !lastResponse && (
+            <div className="section">
+              <div className="section-content" style={{ color: "var(--text-muted)", fontStyle: "italic" }}>
+                Session starting...
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    function App() {
+      const [sessions, setSessions] = useState([]);
+
+      useEffect(() => {
+        function fetchSessions() {
+          fetch("/api/sessions")
+            .then((r) => r.json())
+            .then(setSessions)
+            .catch(() => {});
+        }
+        fetchSessions();
+        const interval = setInterval(fetchSessions, 2000);
+        return () => clearInterval(interval);
+      }, []);
+
+      const counts = {};
+      for (const s of sessions) {
+        counts[s.status] = (counts[s.status] || 0) + 1;
+      }
+
+      return (
+        <>
+          <div className="header">
+            <div className="header-left">
+              <h1>Claude Terminal Board</h1>
+            </div>
+            <div className="header-stats">
+              {counts.active > 0 && (
+                <span><span className="stat-dot green pulse" /> {counts.active} working</span>
+              )}
+              {counts["needs-input"] > 0 && (
+                <span><span className="stat-dot orange" /> {counts["needs-input"]} need action</span>
+              )}
+              {counts["ready-to-read"] > 0 && (
+                <span><span className="stat-dot blue" /> {counts["ready-to-read"]} ready to read</span>
+              )}
+              {counts["your-turn"] > 0 && (
+                <span><span className="stat-dot purple" /> {counts["your-turn"]} your turn</span>
+              )}
+              {sessions.length === 0 && <span>No sessions</span>}
+            </div>
+          </div>
+
+          {sessions.length === 0 ? (
+            <div className="empty">
+              <div className="empty-icon">◻</div>
+              <h2>No Claude Code sessions detected</h2>
+              <p>
+                Open a terminal and run <code>claude</code> in any project.
+                Sessions will appear here automatically.
+              </p>
+            </div>
+          ) : (
+            <div className="board">
+              {sessions.map((s) => (
+                <Card key={s.sessionId} session={s} />
+              ))}
+            </div>
+          )}
+        </>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  </script>
+</body>
+</html>

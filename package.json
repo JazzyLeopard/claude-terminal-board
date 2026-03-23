@@ -1,0 +1,14 @@
+{
+  "name": "claude-terminal-board",
+  "version": "1.0.0",
+  "description": "A simple board to see all your Claude Code terminals and their latest status at a glance",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "chokidar": "^3.5.3"
+  }
+}
